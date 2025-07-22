@@ -63,7 +63,7 @@ cat<<-EOF
 	# Pack output and condor scratch dir info
 	cd "\${condor_scratch}/${card_name}"
 	mv "\${condor_scratch}/_condor_scratch_dir.txt" .
-	XZ_OPT="--lzma2=preset=9,dict=512MiB" tar -cJpsf "\${condor_scratch}/${sandbox_output}" "${card_name}_gridpack" "_condor_scratch_dir.txt"
+	XZ_OPT="--lzma2=preset=9,dict=512MiB" tar -cJpf "\${condor_scratch}/${sandbox_output}" "${card_name}_gridpack" "_condor_scratch_dir.txt"
 	# tar -jcf "\${condor_scratch}/$sandbox_output" "${card_name}_gridpack" "_condor_scratch_dir.txt"
 
 	# Stage-out sandbox
@@ -171,25 +171,27 @@ cmssw_version="${6:-}"
 
 export SYSTEM_RELEASE=`cat /etc/redhat-release`
 
-if [ -n "$5" ]; then
-  if [[ $scram_arch == *"slc6"* ]]; then
-    rhel_ver="rhel6"
-  elif [[ $scram_arch == *"slc7"* ]]; then
-    rhel_ver="rhel7"
-  else
-    echo "Invalid scram_arch is specified!"
-    if [ "${BASH_SOURCE[0]}" != "${0}" ]; then return 1; else exit 1; fi
-  fi
-else
-  if [[ $SYSTEM_RELEASE == *"release 6"* ]]; then
-    rhel_ver="rhel6"
-  elif [[ $SYSTEM_RELEASE == *"release 7"* ]]; then
-    rhel_ver="rhel7"
-  else 
-    echo "No default CMSSW for current OS!"
-      if [ "${BASH_SOURCE[0]}" != "${0}" ]; then return 1; else exit 1; fi        
-  fi
-fi
+rhel_ver="rhel9"
+
+# if [ -n "$5" ]; then
+#   if [[ $scram_arch == *"slc6"* ]]; then
+#     rhel_ver="rhel6"
+#   elif [[ $scram_arch == *"slc7"* ]]; then
+#     rhel_ver="rhel7"
+#   else
+#     echo "Invalid scram_arch is specified!"
+#     if [ "${BASH_SOURCE[0]}" != "${0}" ]; then return 1; else exit 1; fi
+#   fi
+# else
+#   if [[ $SYSTEM_RELEASE == *"release 6"* ]]; then
+#     rhel_ver="rhel6"
+#   elif [[ $SYSTEM_RELEASE == *"release 7"* ]]; then
+#     rhel_ver="rhel7"
+#   else 
+#     echo "No default CMSSW for current OS!"
+#       if [ "${BASH_SOURCE[0]}" != "${0}" ]; then return 1; else exit 1; fi        
+#   fi
+# fi
 
 parent_dir=$PWD
 

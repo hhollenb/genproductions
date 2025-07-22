@@ -58,6 +58,10 @@ hostname = socket.gethostname()
 def singularityWraper():
     if "lxplus" in hostname:
         return f'\nMY.WantOS = \"{hostname.split(".")[0].replace("lxplus","el")}\"\n' # Following https://batchdocs.web.cern.ch/local/submit.html#os-selection-via-containers and simply using hostname 
+    else:
+        return '\n+REQUIRED_OS = "rhel9"\n'
+        # return '\n+SingularityImage = "/cvmfs/singularity.opensciencegrid.org/cmssw/cms:rhel9"'
+
 
 def cleansubproc(subproc):
     subproc.terminate()
@@ -74,6 +78,9 @@ class CMSCondorCluster(CondorCluster):
         """Init the cluster """
 
         super(CMSCondorCluster, self).__init__(self, *args, **opt)
+
+        print("USING CMSCONDORCLUSTER!")
+
         try:
             import htcondor
             self.schedd = htcondor.Schedd()
@@ -201,7 +208,7 @@ class CMSCondorCluster(CondorCluster):
         return 0
 
     @store_input()
-    @multiple_try()
+    @multiple_try(nb_try=condor_q_max_retries, sleep=condor_q_sleep_per_retry)
     def submit2(self, prog, argument=[], cwd=None, stdout=None, stderr=None, 
                 log=None, input_files=[], output_files=[], required_output=[], 
                 nb_submit=0):
@@ -209,6 +216,8 @@ class CMSCondorCluster(CondorCluster):
            input/output file should be give relative to cwd
         """
         
+        print("SUBMIT2 WITH CMSCONDORCLUSTER")
+
         if not required_output and output_files:
             required_output = output_files
         
@@ -268,7 +277,9 @@ class CMSCondorCluster(CondorCluster):
         
         # keep condor logs if CONDOR_DEBUG_OUTPUT_PATH variable is defined
         debug_output_path = os.environ.get("CONDOR_DEBUG_OUTPUT_PATH", "")
+        print("debug_output_path={}".format(debug_output_path))
         if debug_output_path : 
+          print("setting the condor log path...")
           stdout = os.path.normpath(debug_output_path) + "/" + "job_$(ClusterId)_$(JobId)_stdout.txt"
           stderr = os.path.normpath(debug_output_path) + "/" + "job_$(ClusterId)_$(JobId)_stderr.txt"
           log    = os.path.normpath(debug_output_path) + "/" + "job_$(ClusterId)_$(JobId)_condor.txt"
@@ -289,7 +300,15 @@ class CMSCondorCluster(CondorCluster):
             cmd.append("-spool")
         a = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE)
-        output, _ = a.communicate((text % dico).encode())
+
+        decorated_text = text % dico
+
+        # print("SCRIPT:")
+        # print("--------------------")
+        # print(decorated_text)
+        # print("--------------------")
+
+        output, _ = a.communicate(decorated_text.encode())
         #output = a.stdout.read()
         #Submitting job(s).
         #Logging submit event(s).
@@ -599,6 +618,8 @@ class CMSLSFCluster(LSFCluster):
         
             SUBMITTERHOST=%(hostname)s            
 
+            echo "Is cmssw version set: $CMSSW_VERISON"
+
             if [ -n $CMSSW_VERSION ]
             then
               scramv1 project CMSSW $CMSSW_VERSION
@@ -632,6 +653,14 @@ class CMSLSFCluster(LSFCluster):
         me_dir = self.get_jobs_identifier(cwd, prog)
 
         text = text % dico
+
+        print("Script:")
+        print("-------------------")
+        print(text)
+        print("-------------------")
+
+
+
         cwdpath = "/tmp/" + os.environ.get("USER", '')
         command = ['bsub', '-cwd', cwdpath, '-C0', '-J', me_dir]
         if cwd is None:

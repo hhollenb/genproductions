@@ -1,0 +1,10 @@
+import model sm-ckm_no_b_mass
+define l+ = e+ mu+
+define l- = e- mu-
+define vl = ve vm
+define vl~ = ve~ vm~
+
+generate p p > w+{0} w+{0} j j QED=4 QCD=0, w+ > l+ vl @ 1
+add process p p > w-{0} w-{0} j j QED=4 QCD=0, w- > l- vl~ @ 2
+
+output simpletest --nojpeg

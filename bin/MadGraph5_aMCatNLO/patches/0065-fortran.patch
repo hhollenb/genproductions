@@ -1,0 +1,19 @@
+diff --git a/Template/NLO/Source/make_opts.inc b/Template/NLO/Source/make_opts.inc
+--- a/Template/NLO/Source/make_opts.inc
++++ b/Template/NLO/Source/make_opts.inc
+@@ -36,7 +36,7 @@ ifdef f2pymode
+ endif
+
+ # Increase the number of allowed charcters in a Fortran line
+-FFLAGS+= -ffixed-line-length-300
++FFLAGS+= -ffixed-line-length-2000 --no-relax -mcmodel=medium
+
+ # Set FC unless it's defined by an environment variable
+ ifeq ($(origin FC),default
+diff --git a/Template/LO/Source/.make_opts b/Template/LO/Source/.make_opts
+--- a/Template/LO/Source/.make_opts
++++ b/Template/LO/Source/.make_opts
+@@ -16,2 +16,2 @@
+-FFLAGS= -w -fPIC
++FFLAGS= -O -w -fbounds-check -fPIC -mmovbe -mcmodel=medium
+ #FFLAGS+= -g -fbounds-check -ffpe-trap=invalid,zero,overflow,underflow,denormal -Wall

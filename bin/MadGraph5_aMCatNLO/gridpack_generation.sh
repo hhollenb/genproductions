@@ -602,7 +602,7 @@ make_gridpack () {
       
       echo "cleaning temporary output"
       mv $WORKDIR/processtmp/pilotrun_gridpack.tar.gz $WORKDIR/
-      rm -rf processtmp
+      # rm -rf processtmp
       mkdir process
       cd process
       echo "unpacking temporary gridpack"
